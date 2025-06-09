@@ -10,9 +10,10 @@ class TicTacToeBoard(tk.Tk):
         self.title("Tic Tac Toe")
         self._cells = {}
         self._create_board_display()
+        self._board = [["" for _ in range(3)] for _ in range(3)]   # Empty board 
         self._create_board_grid()
         self._player_turn = True  # True = player X, False = player O (AI)
-        self._board = [["" for _ in range(3)] for _ in range(3)]   # Empty board 
+        self._game_over = False 
 
 
     def _create_board_display(self):
@@ -41,6 +42,7 @@ class TicTacToeBoard(tk.Tk):
                     width=3,
                     height=2,
                     highlightbackground="gray",
+                    command=lambda r=row, c=col, b=button: self._handle_click(r, c, b)
                 )
                 self._cells[button] = (row, col)
                 button.grid(
@@ -72,39 +74,83 @@ class TicTacToeBoard(tk.Tk):
         # No winners
         return None
     
-    def is_board_full(self):
+    def _is_board_full(self):
         for row in self._board:
             for cell in row:
                 if cell == "":
                     return False
         return True
+    
+    def make_ai_move(self):
+        if self._game_over:
+            return
+        
+        move = self._find_best_move()
+        if move is None:
+            return
+        
+        row, col = move
+        self._board[row][col] = "O"
 
+        # Update GUI-button
+        for button, (r, c) in self._cells.items():
+            if r == row and c == col:
+                button.config(text="O")
+                break
+        
+        winner = self.check_winner_on_board(self._board)
+        if winner:
+            self._display_winner(winner)
+            return
+        elif self._is_board_full():
+            self._display_winner(None)  # Tie 
+            return
+        
+    def _find_best_move(self): 
+        best_score = float('-inf')
+        best_move = None
+
+        for row in range(3):
+            for col in range(3):
+                if self._board[row][col] == "":
+                    self._board[row][col] = "O"  # AI makes tentative move
+                    score = self._minimax(self._board, 0, False)
+                    self._board[row][col] = ""  # Undo move
+                    if score > best_score:
+                        best_score = score
+                        best_move = (row, col)
+        return best_move 
+    
+    def _minimax(self, board, depth, is_maximizing):
+        winner = self.check_winner_on_board
 
     def _handle_click(self, row, col, button):
         if button["text"] == "" and not self._game_over:
+            print(f"clicked at ({row}, {col})")  # test
             button.config(text="X")
-            self._board[row][col] = "O"
+            self._board[row][col] = "X"
 
             winner = self.check_winner_on_board(self._board)
             if winner:
                 self.display.config(text=f"Player {winner} Is The Winner!")
-                self._disable_buttons()
                 self._game_over = True 
+                self.after(3000, self.reset_board) # Reset board after 3 seconds
                 return 
-            elif self.is_board_full():
+            elif self._is_board_full():
                 self.display.config(text="It Is A Tie!")
-                self.reset_board
+                self._game_over = True
+                self.after(3000, self.reset_board)  # Reset board after 3 seconds
                 return
             
         self.after(300, self.make_ai_move)
     
     def reset_board(self):
         for button in self._cells:
-            button.config(text="", state=tk.NORMAL)
-        self._board = [["" for _ in range(3)] for _ in range(3)]
-        self._player_turn = True 
-        self._game_over = False 
-        self.display.config(text="New Game! X goes first")
+            button.config(text="", state=tk.NORMAL)  # Empty the buttons and activate them
+        self._board = [["" for _ in range(3)] for _ in range(3)]  # Emtpies the board
+        self._player_turn = True # Let player X start
+        self._game_over = False  #  The game is not over
+        self.display.config(text="New Game! X goes first")  #  Update display
     
    
 def main():
