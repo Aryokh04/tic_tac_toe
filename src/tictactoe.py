@@ -41,7 +41,7 @@ class TicTacToeBoard(tk.Tk):
                     width=3,
                     height=2,
                     highlightbackground="gray",
-                    command=lambda r=row, c=col, b=button: self._handle_click(r, c, b)
+                    command=lambda r=row, c=col: self._handle_click(r, c)
                 )
                 self._cells[button] = (row, col)
                 button.grid(
@@ -163,25 +163,28 @@ class TicTacToeBoard(tk.Tk):
 
         self.after(3000, self.reset_board)
 
-    def _handle_click(self, row, col, button):
-        if button["text"] == "" and not self._game_over:
-            print(f"clicked at ({row}, {col})")  # test
-            button.config(text="X")
-            self._board[row][col] = "X"
+    def _handle_click(self, row, col):
+        for button, (r, c) in self._cells.items():
+            if r == row and c == col:
+                if button["text"] == "" and not self._game_over:
+                     # print(f"clicked at ({row}, {col})")
+                    button.config(text="X")
+                    self._board[row][col] = "X"
+                    
+                    winner = self.check_winner_on_board(self._board)
+                    if winner:
+                        self.display.config(text=f"Player {winner} Is The Winner!")
+                        self._game_over = True
+                        self.after(3000, self.reset_board)
+                        return
+                    elif self._is_board_full():
+                        self.display.config(text="It Is A Tie!")
+                        self._game_over = True
+                        self.after(3000, self.reset_board)
+                        return
+                    self.after(300, self.make_ai_move)
+                break
 
-            winner = self.check_winner_on_board(self._board)
-            if winner:
-                self.display.config(text=f"Player {winner} Is The Winner!")
-                self._game_over = True 
-                self.after(3000, self.reset_board) # Reset board after 3 seconds
-                return 
-            elif self._is_board_full():
-                self.display.config(text="It Is A Tie!")
-                self._game_over = True
-                self.after(3000, self.reset_board)  # Reset board after 3 seconds
-                return
-            
-        self.after(300, self.make_ai_move)
     
     def reset_board(self):
         for button in self._cells:
