@@ -151,7 +151,13 @@ class TicTacToeBoard(tk.Tk):
                         best_score = min(score, best_score)
             return best_score
     
-    
+    def _display_winner(self, winner):
+        if winner == "X" or winner == "O":
+            self.display.config(text=f"Player {winner} Is The Winner!")
+        else:
+            self.display.config(text="It Is A Tie!")
+        self._game_over = True
+        self.after(3000, self.reset_board)
 
     def _handle_click(self, row, col, button):
         if button["text"] == "" and not self._game_over:
