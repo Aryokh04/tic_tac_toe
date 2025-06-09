@@ -15,7 +15,7 @@ class TicTacToeBoard(tk.Tk):
         display_frame.pack(fill=tk.X)
         self.display = tk.Label(
             master=display_frame,
-            text="ready?",
+            text="Start!",
             font=font.Font(size=30, weight="bold"),
         )
         self.display.pack()
@@ -34,19 +34,39 @@ class TicTacToeBoard(tk.Tk):
                     fg="black",
                     width=3,
                     height=2,
-                    highlightbackground="lightblue",
+                    highlightbackground="gray",
                 )
                 self._cells[button] = (row, col)
                 button.grid(
                     row=row,
                     column=col,
-                    padx=5,
-                    pady=5,
+                    padx=4,
+                    pady=4,
                     sticky="nsew"
                 )
+
+    def _handle_click(self, row, col, button):
+        if button["text"] == self._game_over:
+            button.config(text="X")
+            self._board[row][col] = "O"
+
+            winner = self.check_winner_on_board(self._board)
+            if winner:
+                self.display.config(text=f"Player {winner} Is The Winner!")
+                self._disable_buttons()
+                self._game_over = True 
+                return 
+            elif self.is_board_full():
+                self.display.config(text="It Is A Tie!")
+                self._game_over = True 
+                return
+            
+        self.after(300, self.make_ai_move)
+    
+   
 def main():
-    board = TicTacToeBoard()
-    board.mainloop()
+    board = TicTacToeBoard()  # Instance of the class
+    board.mainloop()   # opens and keeps the window running
 
 if __name__ == "__main__":
     main()
