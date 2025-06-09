@@ -1,14 +1,17 @@
 import tkinter as tk 
 from tkinter import font
 
+
 # Creating a class that inherits from tk.Tk to use tkinter methods
 class TicTacToeBoard(tk.Tk):
+    
     def __init__(self):
         super().__init__()
         self.title("Tic Tac Toe")
         self._cells = {}
         self._create_board_display()
         self._create_board_grid()
+        self._player_turn = True  # True = player X, False = player O (AI)
 
     def _create_board_display(self):
         display_frame = tk.Frame(master=self)
@@ -45,8 +48,34 @@ class TicTacToeBoard(tk.Tk):
                     sticky="nsew"
                 )
 
+    def check_winner_on_board(self, board):
+        # Check for 3 of same symbols un rows
+        for row in board:
+            if row[0] == row[1] == row[2] != "":
+                return row[0]
+        
+        # Check for winner in columns
+        for col in range(3):
+            if board[0][col] == board[1][col] == board[2][col] != "":
+                return board[0][col]
+        
+        # Check diagonals
+        if board[0][0] == board[1][1] == board[2][2] != "":
+            return board[0][0]
+        
+        if board[0][2] == board[1][1] == board[2][0] != "":
+            return board[0][2] 
+        
+        # No winners
+        return None
+    
+    def is_board_full(self):
+
+
+
+
     def _handle_click(self, row, col, button):
-        if button["text"] == self._game_over:
+        if button["text"] == "" and not self._game_over:
             button.config(text="X")
             self._board[row][col] = "O"
 
