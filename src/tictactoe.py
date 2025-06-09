@@ -122,7 +122,36 @@ class TicTacToeBoard(tk.Tk):
         return best_move 
     
     def _minimax(self, board, depth, is_maximizing):
-        winner = self.check_winner_on_board
+        winner = self.check_winner_on_board(board)
+        if winner == "O":
+            return 10 - depth
+        elif winner == "X":
+            return depth - 10
+        elif self._is_board_full():
+            return 0  # Tie 
+        
+        if is_maximizing:
+            best_score = float('-inf')
+            for row in range(3):
+                for col in range(3):
+                    if board[row][col] == "":
+                        board[row][col] = "O"
+                        score = self._minimax(board, depth + 1, False)
+                        board[row][col] = ""
+                        best_score = max(score, best_score)
+            return best_score
+        else:
+            best_score = float('inf')
+            for row in range(3):
+                for col in range(3):
+                    if board[row][col] == "":
+                        board[row][col] = "X"
+                        score = self._minimax(board, depth + 1, True)
+                        board[row][col = ""
+                        best_score = min(score, best_score)
+            return best_score
+    
+    
 
     def _handle_click(self, row, col, button):
         if button["text"] == "" and not self._game_over:
