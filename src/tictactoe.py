@@ -12,7 +12,6 @@ class TicTacToeBoard(tk.Tk):
         self._create_board_display()
         self._board = [["" for _ in range(3)] for _ in range(3)]   # Empty board 
         self._create_board_grid()
-        self._player_turn = True  # True = player X, False = player O (AI)
         self._game_over = False 
 
 
@@ -21,7 +20,7 @@ class TicTacToeBoard(tk.Tk):
         display_frame.pack(fill=tk.X)
         self.display = tk.Label(
             master=display_frame,
-            text="Start!",
+            text="New Game! X goes first!",
             font=font.Font(size=30, weight="bold"),
         )
         self.display.pack()
@@ -147,7 +146,7 @@ class TicTacToeBoard(tk.Tk):
                     if board[row][col] == "":
                         board[row][col] = "X"
                         score = self._minimax(board, depth + 1, True)
-                        board[row][col = ""
+                        board[row][col] = ""
                         best_score = min(score, best_score)
             return best_score
     
@@ -156,7 +155,12 @@ class TicTacToeBoard(tk.Tk):
             self.display.config(text=f"Player {winner} Is The Winner!")
         else:
             self.display.config(text="It Is A Tie!")
+        
         self._game_over = True
+
+        for button in self._cells:
+            button.config(state=tk.DISABLED)
+
         self.after(3000, self.reset_board)
 
     def _handle_click(self, row, col, button):
